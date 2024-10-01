@@ -116,7 +116,7 @@ settings.json
 /wandb
 
 # repo files
-sumo_rl_repo/
+*repo/
 
 # outputs
 outputs/

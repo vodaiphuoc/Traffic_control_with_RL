@@ -1,10 +1,8 @@
 gymnasium
-pettingzoo
 numpy
 pandas
-pillow
+pettingzoo
 sumolib
 traci
-matplotlib
-ipython
+iPython
 torch
