@@ -1,0 +1,10 @@
+gymnasium
+pettingzoo
+numpy
+pandas
+pillow
+sumolib
+traci
+matplotlib
+ipython
+torch

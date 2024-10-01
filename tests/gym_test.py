@@ -1,7 +1,7 @@
 import gymnasium as gym
 from gymnasium.utils.env_checker import check_env
 
-import sumo_rl
+import sumo_rl_repo
 
 
 def test_api():
