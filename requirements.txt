@@ -8,3 +8,4 @@ iPython
 torch
 matplotlib
 PyVirtualDisplay
+tqdm

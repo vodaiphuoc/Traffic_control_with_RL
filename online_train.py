@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import gymnasium as gym
 import math
 import random
 import matplotlib
@@ -13,6 +11,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+
+from tqdm import tqdm
 
 env = SumoEnvironment(
     net_file="src/nets/2way-single-intersection/single-intersection.net.xml",
@@ -190,10 +190,12 @@ else:
     num_episodes = 50
 
 for i_episode in range(num_episodes):
+    print("Episode:", i_episode)
     # Initialize the environment and get its state
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
-    for t in count():
+
+    for t in tqdm(count()):
         action = select_action(state)
         observation, reward, terminated, truncated, infor = env.step(action.item())
         reward = torch.tensor([reward], device=device)
