@@ -6,3 +6,5 @@ sumolib
 traci
 iPython
 torch
+matplotlib
+PyVirtualDisplay

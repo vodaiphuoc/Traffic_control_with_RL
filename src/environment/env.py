@@ -313,11 +313,10 @@ class SumoEnvironment(gym.Env):
             self._apply_actions(action)
             self._run_steps()
 
-        print("run test get 2D matrix")
-        print(self._compute_map())
+        # print("run test get 2D matrix")
+        # print(self._compute_map())
 
         observations = self._compute_observations()
-        print("got observations")
         rewards = self._compute_rewards()
         dones = self._compute_dones()
         terminated = False  # there are no 'terminal' states in this environment

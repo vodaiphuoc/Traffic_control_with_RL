@@ -20,7 +20,7 @@ env = SumoEnvironment(
     out_csv_name="outputs/2way-single-intersection/dqn",
     single_agent=True,
     use_gui=True,
-    num_seconds=100000,
+    num_seconds=50000,
 )
 
 # set up matplotlib
@@ -36,7 +36,6 @@ device = torch.device(
     "mps" if torch.backends.mps.is_available() else
     "cpu"
 )
-
 
 # BATCH_SIZE is the number of transitions sampled from the replay buffer
 # GAMMA is the discount factor as mentioned in the previous section
@@ -128,9 +127,8 @@ def plot_durations(show_result=False):
 # loss. By definition we set :math:`V(s) = 0` if :math:`s` is a terminal
 # state. We also use a target network to compute :math:`V(s_{t+1})` for
 # added stability. The target network is updated at every step with a 
-# `soft update <https://arxiv.org/pdf/1509.02971.pdf>`__ controlled by 
-# the hyperparameter ``TAU``, which was previously defined.
-#
+# `soft update controlled by the hyperparameter ``TAU``, which was previously defined.
+
 
 def optimize_model():
     if len(memory) < BATCH_SIZE:
@@ -180,7 +178,6 @@ def optimize_model():
 
 
 ######################################################################
-#
 # Below, you can find the main training loop. At the beginning we reset
 # the environment and obtain the initial ``state`` Tensor. Then, we sample
 # an action, execute it, observe the next state and the reward (always
@@ -198,7 +195,7 @@ for i_episode in range(num_episodes):
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
     for t in count():
         action = select_action(state)
-        observation, reward, terminated, truncated, infor = env.step(action.item()) # type: ignore
+        observation, reward, terminated, truncated, infor = env.step(action.item())
         reward = torch.tensor([reward], device=device)
         done = terminated or truncated
 

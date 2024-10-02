@@ -6,8 +6,6 @@ import torch.nn.functional as F
 from collections import namedtuple, deque
 import random
 
-
-
 # class 'Transition'
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
