@@ -115,8 +115,9 @@ settings.json
 /logs
 /wandb
 
-# repo files
-*repo/
+# repo folders
+repo_d3rlpy/
+repo_stable_baseline/
 
 # outputs
 outputs/
