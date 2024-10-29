@@ -121,3 +121,6 @@ repo_stable_baseline/
 
 # outputs
 outputs/
+
+# test files
+test*.py

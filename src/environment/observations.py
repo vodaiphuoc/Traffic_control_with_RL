@@ -36,7 +36,7 @@ class DefaultObservationFunction(ObservationFunction):
     def toArray(feature: List[Union[int,float]])-> np.ndarray:
         return np.array(feature, dtype= np.float32)
 
-    def __call__(self) -> np.ndarray:
+    def __call__(self) -> Dict[str,np.ndarray]:
         """Return the default observation."""
         phase_id = [1 if self.ts.green_phase == i else 0 for i in range(self.ts.num_green_phases)]  # one-hot encoding
         min_green = [0 if self.ts.time_since_last_phase_change < self.ts.min_green + self.ts.yellow_time else 1]

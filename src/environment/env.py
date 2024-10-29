@@ -425,6 +425,9 @@ class SumoEnvironment(gym.Env):
             y_mapped = int(single_vehicle_position[0]//grid_height)
             x_mapped = int(single_vehicle_position[1]//grid_wdith)
             mapofCars[y_mapped, x_mapped] = 1
+        
+        mapofCars = np.expand_dims(mapofCars, axis = 0)
+        assert mapofCars.ndim == 3 and mapofCars.shape[0] == 1, f"Found shape of image {mapofCars.shape}"
         return mapofCars
 
     @property

@@ -7,7 +7,8 @@ import random
 from tensordict.tensordict import TensorDict
 import random
 import numpy as np
-from typing import Dict, Tuple, NamedTuple, List, Union
+from typing import Dict, Tuple, NamedTuple, List, Union, Literal
+from types import NoneType
 
 class Transition(NamedTuple):
     state: TensorDict
@@ -21,20 +22,24 @@ class ReplayMemory(object):
 
     @staticmethod
     def _toTensorDict(state: Dict[str, np.ndarray])->TensorDict:
-        return TensorDict(source= {k: np.expand_dims(v,0) 
-                                   for k,v in state.items()}, 
+        return TensorDict(source= {k: np.expand_dims(v,0).astype(np.float32)
+                                   for k,v in state.items()},
                           batch_size= 1)
     
     def push(self, 
-             state: Dict[str,np.ndarray],
+             state: TensorDict,
              action: torch.Tensor,
-             next_state: Dict[str,np.ndarray],
+             next_state: Union[Dict[str,np.ndarray], NoneType],
              reward: Union[float, torch.Tensor])->None:
-        self.memory.append(Transition(ReplayMemory._toTensorDict(state), 
+        """Append to Relay memory"""
+        assert isinstance(state, TensorDict), f"Found type {type(state)}"
+        next_state = ReplayMemory._toTensorDict(next_state)
+        self.memory.append(Transition(state, 
                                       action, 
-                                      ReplayMemory._toTensorDict(next_state),
+                                      next_state,
                                       torch.tensor([reward]) if isinstance(reward,float) else reward
                             ))
+        return next_state
                             
     def sample(self, batch_size)->List[Transition]:
         return random.sample(self.memory, batch_size)
@@ -44,10 +49,19 @@ class ReplayMemory(object):
         # converts batch-array of Transitions
         # to Transition of batch-arrays
         transition_batchs = Transition(*zip(*batch))
-        return (torch.cat(transition_batchs.state),
+
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
+                                          transition_batchs.next_state)), 
+                                          device=batch[0].action.device, 
+                                          dtype=torch.bool)
+        non_final_next_states = torch.cat([s for s in transition_batchs.next_state
+                                                    if s is not None])
+        
+        return (torch.cat(transition_batchs.state).to(torch.float32),
                 torch.cat(transition_batchs.action),
-                torch.cat(transition_batchs.next_state),
-                torch.cat(transition_batchs.reward)
+                torch.cat(transition_batchs.reward),
+                non_final_mask,
+                non_final_next_states
                 )
 
     def __len__(self)->int:
@@ -55,18 +69,69 @@ class ReplayMemory(object):
 
 # Policy net
 class DQN(nn.Module):
-
-    def __init__(self, n_observations, n_actions):
+    def __init__(self, n_actions:int, CNN_out_dim:int, other_future_dim:int = 21):
         super(DQN, self).__init__()
-        self.layer1 = nn.Linear(n_observations, 128)
-        self.layer2 = nn.Linear(128, 128)
-        self.layer3 = nn.Linear(128, n_actions)
 
-    # Called with either one element to determine next action, or a batch
-    # during optimization. Returns tensor([[left0exp,right0exp]...]).
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = F.relu(self.layer2(x))
-        return self.layer3(x)
+        self.CNN = DQN._make_blocks(in_dim = 1, 
+                                    out_dim = CNN_out_dim, 
+                                    layer_type= 'CNN')
+        self.Fusion = DQN._make_blocks(in_dim = CNN_out_dim + other_future_dim, 
+                                       out_dim = n_actions, 
+                                       layer_type = 'Linear')
+        self.estimate_concat_dim = other_future_dim+CNN_out_dim
 
+    @staticmethod
+    def _make_blocks(in_dim:int,
+                     out_dim:int,
+                     layer_type: Literal['CNN','Linear']
+                     )->nn.ModuleList:
+        layers = []
+        num_blocks = out_dim//(2**5) if layer_type == 'CNN' else (in_dim - out_dim)//(2**5)
+        for i in range(0,num_blocks):
+            layers += DQN._make_layer_type(in_channels = i*2**5,
+                                           out_channels = (i+1)*2**5,
+                                           layer_type = layer_type,
+                                           start_in_dim = in_dim,
+                                           end_out_dim = out_dim,
+                                           is_final = False if i < num_blocks -1 else True)
+        if layer_type == 'CNN':
+            # layers.append(nn.AdaptiveAvgPool2d(output_size= (2,2)))
+            layers.append(nn.Flatten())
+        return nn.ModuleList(layers)
+    
+    @staticmethod
+    def _make_layer_type(in_channels:int, 
+                         out_channels:int, 
+                         layer_type: Literal['CNN','Linear'],
+                         start_in_dim:int,
+                         end_out_dim:int,
+                         is_final:bool
+                         )->List[nn.Module]:
+        if layer_type == 'CNN':
+            return [nn.Conv2d(in_channels if in_channels != 0 else start_in_dim, 
+                              out_channels if not is_final else end_out_dim, 
+                              kernel_size = 3, stride = 1),
+                nn.ReLU(),
+                nn.AvgPool2d(kernel_size= 2, stride= 2),
+                ]
+        else:
+            return [nn.Linear(start_in_dim - in_channels,end_out_dim)] if is_final else \
+                    [nn.Linear(start_in_dim - in_channels,start_in_dim -out_channels), nn.ReLU()]
 
+    
+    def forward(self, 
+                phase_id: torch.Tensor,
+                min_green: torch.Tensor,
+                density: torch.Tensor,
+                queue: torch.Tensor,
+                mapofCars: torch.Tensor
+                )-> torch.Tensor:
+                
+        for layer in self.CNN:
+            mapofCars = layer(mapofCars)
+
+        total_features = torch.cat([phase_id, min_green, density, queue, \
+                                    mapofCars], dim= -1)
+        for mlp_layer in self.Fusion:
+            total_features = mlp_layer(total_features)
+        return total_features
