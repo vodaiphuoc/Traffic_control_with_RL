@@ -1,6 +1,6 @@
 """Observation functions for traffic signals."""
 from abc import abstractmethod
-
+from typing import List, Union, Dict
 import numpy as np
 from gymnasium import spaces
 
@@ -32,14 +32,23 @@ class DefaultObservationFunction(ObservationFunction):
         """Initialize default observation function."""
         super().__init__(ts)
 
+    @staticmethod
+    def toArray(feature: List[Union[int,float]])-> np.ndarray:
+        return np.array(feature, dtype= np.float32)
+
     def __call__(self) -> np.ndarray:
         """Return the default observation."""
         phase_id = [1 if self.ts.green_phase == i else 0 for i in range(self.ts.num_green_phases)]  # one-hot encoding
         min_green = [0 if self.ts.time_since_last_phase_change < self.ts.min_green + self.ts.yellow_time else 1]
         density = self.ts.get_lanes_density()
         queue = self.ts.get_lanes_queue()
-        observation = np.array(phase_id + min_green + density + queue, dtype=np.float32)
-        return observation
+        # observation = np.array(phase_id + min_green + density + queue, dtype=np.float32)
+        return {
+                'phase_id': DefaultObservationFunction.toArray(phase_id),
+                'min_green':DefaultObservationFunction.toArray(min_green),
+                'density': DefaultObservationFunction.toArray(density),
+                'queue': DefaultObservationFunction.toArray(queue),
+                }
 
     def observation_space(self) -> spaces.Box:
         """Return the observation space."""

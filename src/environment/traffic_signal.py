@@ -315,7 +315,3 @@ class TrafficSignal:
         "queue": _queue_reward,
         "pressure": _pressure_reward,
     }
-
-    def get_vehicles_position(self):
-        veh_list = self._get_veh_list()
-        return [self.sumo.vehicle.getPosition(id) for id in veh_list]
