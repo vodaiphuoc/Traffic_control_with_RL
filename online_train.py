@@ -20,7 +20,7 @@ env = SumoEnvironment(
     route_file="src/nets/2way-single-intersection/single-intersection-vhvh.rou.xml",
     out_csv_name="outputs/2way-single-intersection/dqn",
     single_traffic_light=True,
-    use_gui=False,
+    use_gui=True,
     num_seconds=50000,
 )
 
@@ -71,7 +71,7 @@ target_net = DQN(n_actions = n_actions,
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = ReplayMemory(10000)
+memory = ReplayMemory(1000)
 
 
 steps_done = 0

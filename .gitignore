@@ -123,4 +123,5 @@ repo_stable_baseline/
 outputs/
 
 # test files
-test*.py
+test_mem.py
+test.py
