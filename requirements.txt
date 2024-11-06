@@ -5,7 +5,7 @@ pettingzoo
 sumolib
 traci
 iPython
-torch
+torch==2.4
 matplotlib
 PyVirtualDisplay
 tqdm
