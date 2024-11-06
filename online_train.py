@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 
 env = SumoEnvironment(
-    map_config_path= "src\\nets\\2way-single-intersection\\map_config.json",
+    map_config_path= "src/nets/2way-single-intersection/map_config.json",
     net_file="src/nets/2way-single-intersection/single-intersection.net.xml",
     route_file="src/nets/2way-single-intersection/single-intersection-vhvh.rou.xml",
     out_csv_name="outputs/2way-single-intersection/dqn",
