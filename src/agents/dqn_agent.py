@@ -26,7 +26,7 @@ class ReplayMemory(object):
                                    for k,v in state.items()},
                           batch_size= 1)
     
-    def push(self, 
+    def push(self,
              state: TensorDict,
              action: torch.Tensor,
              next_state: Union[Dict[str,np.ndarray], NoneType],
