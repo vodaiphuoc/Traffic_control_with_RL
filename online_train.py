@@ -170,7 +170,7 @@ def optimize_model():
         non_final_next_states = non_final_next_states.to(device)
         next_state_values[non_final_mask] = target_net(**non_final_next_states).max(1).values
     # Compute the expected Q values
-    expected_state_action_values = (next_state_values * GAMMA) + reward_batch
+    expected_state_action_values = (next_state_values * GAMMA) + reward_batch.to(device)
 
     # Compute Huber loss
     criterion = nn.SmoothL1Loss()
