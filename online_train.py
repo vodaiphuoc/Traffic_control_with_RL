@@ -13,12 +13,21 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from tqdm import tqdm
+import os
+
+current_file_path = os.path.dirname(os.path.abspath(__file__))
+map_config_path= "src/nets/2way-single-intersection/map_config.json"
+net_file="src/nets/2way-single-intersection/single-intersection.net.xml"
+route_file="src/nets/2way-single-intersection/single-intersection-vhvh.rou.xml"
+out_csv_name="outputs/2way-single-intersection/dqn"
+
+
 
 env = SumoEnvironment(
-    map_config_path= "src/nets/2way-single-intersection/map_config.json",
-    net_file="src/nets/2way-single-intersection/single-intersection.net.xml",
-    route_file="src/nets/2way-single-intersection/single-intersection-vhvh.rou.xml",
-    out_csv_name="outputs/2way-single-intersection/dqn",
+    map_config_path = os.path.join(current_file_path,map_config_path),
+    net_file = os.path.join(current_file_path,net_file),
+    route_file = os.path.join(current_file_path,route_file),
+    out_csv_name = os.path.join(current_file_path,out_csv_name),
     single_traffic_light=True,
     use_gui=False,
     num_seconds=50000,
