@@ -167,6 +167,7 @@ def optimize_model():
     # state value or 0 in case the state was final.
     next_state_values = torch.zeros(BATCH_SIZE, device=device)
     with torch.no_grad():
+        non_final_next_states = non_final_next_states.to(device)
         next_state_values[non_final_mask] = target_net(**non_final_next_states).max(1).values
     # Compute the expected Q values
     expected_state_action_values = (next_state_values * GAMMA) + reward_batch
