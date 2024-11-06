@@ -118,6 +118,9 @@ class DQN(nn.Module):
             return [nn.Linear(start_in_dim - in_channels,end_out_dim)] if is_final else \
                     [nn.Linear(start_in_dim - in_channels,start_in_dim -out_channels), nn.ReLU()]
 
+    # @property
+    # def _get_device(self):
+    #     return set([pram.device for pram in self.parameters()])[0]
     
     def forward(self, 
                 phase_id: torch.Tensor,
@@ -126,7 +129,7 @@ class DQN(nn.Module):
                 queue: torch.Tensor,
                 mapofCars: torch.Tensor
                 )-> torch.Tensor:
-                
+        
         for layer in self.CNN:
             mapofCars = layer(mapofCars)
 

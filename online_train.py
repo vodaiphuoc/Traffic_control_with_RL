@@ -97,6 +97,7 @@ def select_action(state):
             # t.max(1) will return the largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
+            state = state.to(device)
             return policy_net(**state).max(1).indices.view(1, 1)
     else:
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
@@ -156,6 +157,7 @@ def optimize_model():
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
+    state_batch = state_batch.to(device)
     state_action_values = policy_net(**state_batch).gather(1, action_batch)
 
     # Compute V(s_{t+1}) for all next states.
