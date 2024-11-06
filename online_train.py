@@ -20,7 +20,7 @@ env = SumoEnvironment(
     route_file="src/nets/2way-single-intersection/single-intersection-vhvh.rou.xml",
     out_csv_name="outputs/2way-single-intersection/dqn",
     single_traffic_light=True,
-    use_gui=True,
+    use_gui=False,
     num_seconds=50000,
 )
 
