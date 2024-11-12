@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from itertools import count
 from src.environment.env import SumoEnvironment
 from src.agents.dqn_agent import DQN, ReplayMemory
+from src.exploration.epsilon_greedy import EpsilonGreedy
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -82,25 +83,11 @@ target_net.load_state_dict(policy_net.state_dict())
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
 memory = ReplayMemory(1000)
 
-
-steps_done = 0
-
-
-def select_action(state):
-    global steps_done
-    sample = random.random()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-        math.exp(-1. * steps_done / EPS_DECAY)
-    steps_done += 1
-    if sample > eps_threshold:
-        with torch.no_grad():
-            # t.max(1) will return the largest column value of each row.
-            # second column on max result is index of where max element was
-            # found, so we pick action with the larger expected reward.
-            state = state.to(device)
-            return policy_net(**state).max(1).indices.view(1, 1)
-    else:
-        return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
+action_agent = EpsilonGreedy(device = device,
+                            EPS_START = EPS_START,
+                            EPS_END = EPS_END,
+                            EPS_DECAY = EPS_DECAY
+                            )
 
 
 episode_durations = []
@@ -183,7 +170,6 @@ def optimize_model():
     torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100)
     optimizer.step()
 
-
 ######################################################################
 # Below, you can find the main training loop. At the beginning we reset
 # the environment and obtain the initial ``state`` Tensor. Then, we sample
@@ -192,7 +178,7 @@ def optimize_model():
 # fails), we restart the loop.
 
 if torch.cuda.is_available() or torch.backends.mps.is_available():
-    num_episodes = 600
+    num_episodes = 60
 else:
     num_episodes = 50
 
@@ -203,7 +189,8 @@ for i_episode in range(num_episodes):
     state = ReplayMemory._toTensorDict(state)
 
     for t in tqdm(count()):
-        action = select_action(state)
+        action = action_agent.select_action(state,policy_net,env)
+
         observation, reward, terminated, truncated, infor = env.step(action.item())
         
         done = terminated or truncated
@@ -217,7 +204,7 @@ for i_episode in range(num_episodes):
 
         # Perform one step of the optimization (on the policy network)
         optimize_model()
-
+        
         # Soft update of the target network's weights
         # θ′ ← τ θ + (1 −τ )θ′
         target_net_state_dict = target_net.state_dict()
