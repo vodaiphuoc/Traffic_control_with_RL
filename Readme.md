@@ -5,7 +5,7 @@ represents vehicle positions return from the environment.
 - Implement relay memory with NamedTuple, deque in Python and TensorDict (Pytorch)
 
 #### Workflow:
-```
+
 1:  for _ in range(number_of_episodes): 
 2:      env.reset()
 3:      for step in steps():
@@ -19,7 +19,7 @@ represents vehicle positions return from the environment.
 9:                  for i in range(num_epochs):
                         batch_data, weights <- memory_buffer.sample() # with priority memory
                         td_errors, huber_loss <- compute from batch_data
-                        memory_buffer.update_priority(param = td_errors + some \epsilon)
+                        memory_buffer.update_priority(param = td_errors + some $\epsilon$)
                         
                         # gradient accumualation
                         loss <- loss*td_errors*weights
@@ -31,10 +31,10 @@ represents vehicle positions return from the environment.
                 # end train_model
 
             if update_target:
-                target_net <- soft update with \tau <- DQN_net
+                target_net <- soft update with $\tau$ <- DQN_net
 
 
-```
+$\tau$
 
 
 #### References: 
