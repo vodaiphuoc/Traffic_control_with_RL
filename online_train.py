@@ -74,7 +74,7 @@ policy_net = DQN(n_actions = n_actions,
                  CNN_out_dim = 128, 
                  other_future_dim = 21).to(device)
 
-target_net = DQN(n_actions = n_actions, 
+target_net = DQN(n_actions = n_actions,
                  CNN_out_dim = 128,
                  other_future_dim = 21).to(device)
 
