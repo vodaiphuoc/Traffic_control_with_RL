@@ -124,3 +124,4 @@ outputs/
 # test files
 test_mem.py
 test.py
+test*.py
