@@ -21,7 +21,8 @@ represents vehicle positions return from the environment.
                         batch_data, weights <- memory_buffer.sample() # with priority memory
                         
 ```
-- In Double DQN, $a'\rightarrow Q_{net}$ and $next\_q\_value\rightarrow target\_Q\_net$
+
+- In Double DQN, $a'\rightarrow Q_{net}$ and $`next\_q\_value\rightarrow target\_Q\_net`$
 ```
                         td_errors, huber_loss <- compute from batch_data
 ```
