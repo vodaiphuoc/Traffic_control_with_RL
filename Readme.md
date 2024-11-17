@@ -4,10 +4,11 @@ Traffic control with deep Q learning and SUMO environment and Pytorch model
 represents vehicle positions return from the environment.
 - Implement relay memory with NamedTuple, deque in Python and TensorDict (Pytorch)
 
-#### Workflow:
-
+#### Pseudo Workflow:
+```
 1:  for _ in range(number_of_episodes): 
 2:      env.reset()
+
 3:      for step in steps():
 4:          action <- greedy-epsilon policy # based on random_action and DQN
 5:          state, action, next_state, reward = env.step(action)
@@ -18,23 +19,54 @@ represents vehicle positions return from the environment.
                 def train_model():
 9:                  for i in range(num_epochs):
                         batch_data, weights <- memory_buffer.sample() # with priority memory
+                        
+```
+- In Double DQN, $a'\rightarrow Q_{net}$ and $next\_q\_value\rightarrow target\_Q\_net$
+```
                         td_errors, huber_loss <- compute from batch_data
-                        memory_buffer.update_priority(param = td_errors + some $\epsilon$)
+```
+
+- Update priority with **TD** errors and $\epsilon$
+```
+                        memory_buffer.update_priority(param = td_errors + some `epsilon`)
                         
                         # gradient accumualation
-                        loss <- loss*td_errors*weights
-                        loss.backward()
+                        huber_loss <- huber_loss*td_errors*weights
+                        huber_loss.backward()
                     
                     # update DQN after gradient accumualation
                     optimizer.step() with learning rate lr
                     optimizer.zero_grad()
                 # end train_model
 
+```
+- Soft update target network by copying weights from main network with hyperparameter $\tau$
+```
             if update_target:
-                target_net <- soft update with $\tau$ <- DQN_net
+                target_net <- soft update with `tau` <- DQN_net
 
 
-$\tau$
+```
+
+
+
+
+
+q_sampled_action <- Q_net forward with observations (from memory)
+
+
+best_next_action = torch.argmax(double_q, -1) which double_q <- Q_net(next_state)
+
+target_q <- target_net(next_state)
+best_next_q_value = target_q.gather(-1, best_next_action.unsqueeze(-1)).squeeze(-1)
+
+
+
+q_update = reward + self.gamma * best_next_q_value * (1 - done)
+td_error = q_sampled_action - q_update
+
+
+
 
 
 #### References: 
