@@ -50,7 +50,8 @@ class Double_Q_Agent(object):
                                 dtype=torch.long
             )
 
-    
+    def _compute_loss_TD_error(self):
+    	
 
 	def soft_update(self)->None:
 		"""Soft update of the target network's weights

@@ -14,8 +14,9 @@ class Transition(NamedTuple):
     reward: float
 
 class ReplayMemory(object):
-    def __init__(self, capacity):
+    def __init__(self, capacity:int):
         self.memory = deque([], maxlen=capacity)
+        self.capacity = capacity
 
     @staticmethod
     def _toTensorDict(state: Dict[str, np.ndarray])->TensorDict:
@@ -60,6 +61,10 @@ class ReplayMemory(object):
                 non_final_mask,
                 non_final_next_states
                 )
+    
+    @property
+    def is_full(self):
+        return self.__len__ == self.capacity
 
     def __len__(self)->int:
         return len(self.memory)
