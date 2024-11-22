@@ -54,32 +54,36 @@ represents vehicle positions return from the environment.
 
 #### New workflow
 
-###### Offline training stage
+##### Offline training stage
 - Initialization: 
-&ensp; &ensp; - behaviour policy list :List[$\pi_{\beta\_i}$] = [random, pre-trained, greedy-epsilon policies]
-&ensp; &ensp; - empty memory_relay $D_{off}$ with capacity $C$ and contains $N$ buckets
+- &ensp; &ensp; behaviour policy list :List[$\pi_{\beta\_i}$] = [random, pre-trained, greedy-epsilon policies]
+- &ensp; &ensp; empty memory_relay $D_{off}$ with capacity $C$ and contains $N$ buckets
+
 1. action $\leftarrow$ behaviour policy
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
 3. Store new_transition in offline memory_relay $D_{off}$
 4. If $D_{off}$ is full:
 5. &ensp; &ensp; Training Double deep Q network $Q_{net}$
 
-
-###### Deploy stage: Inference + online training
+##### Deploy stage: Inference + online training
 - Initialization: 
-&ensp; &ensp; - trained DDQN network $Q_{net}$, 
-&ensp; &ensp; - filled offline memory_relay $D_{off}$
-&ensp; &ensp; - empty memory_relay $D_{onl}$ with specification like $D_{off}$
+    - trained DDQN network $Q_{net}$, 
+    - filled offline memory_relay $D_{off}$
+    - empty memory_relay $D_{onl}$ with specification like $D_{off}$
 
 1. action $\leftarrow Q_{net}\leftarrow$ state $\leftarrow$ env.reset()
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
-3. Store new_transition $D_{onl}[buck_{j,j\belong N}]$
+3. Store new_transition $D_{onl}[buck_{j,j\in N}]$
 4. if $buck_{j}$ waitl is full:
 5. &ensp; &ensp; **TD** errors $\leftarrow$ inference $\leftarrow buck_{j}$ data
-6. &ensp; &ensp; Update corresponding priorities (via **TD** errors)
+6. &ensp; &ensp; Set corresponding priorities (via **TD** errors)
+> &ensp; &ensp; Formula of MMD [Maximum Mean Discrepancy](https://pytorch.org/ignite/generated/ignite.metrics.MaximumMeanDiscrepancy.html)
 7. &ensp; &ensp; $MMD(buck_{j}, D_{off})\leftarrow {1/N}\sum_{j=1}^N MMD(buck_{j}, D_{off}[buck_{j}])$
-
-
+8. if $MMD(buck_{j}, D_{off}) > MMD(buck_{j-1}, D_{off})*ratio$:
+> &ensp; &ensp; Trigger training $Q_{net}$
+9. &ensp; &ensp; Sampling data from $D_{onl}[buck_{0:j}]$ + $D_{off}$ with priorities
+10. else:
+11. &ensp; &ensp; back to step 1).
 
 
 
@@ -99,6 +103,10 @@ represents vehicle positions return from the environment.
     publisher = {PyTorch},
     howpublished = {\url{https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html}},
 }
+
+
+
+
 
 
 other refs:
