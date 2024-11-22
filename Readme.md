@@ -52,29 +52,28 @@ represents vehicle positions return from the environment.
 
 ```
 
-#### New workflow
 
 ##### Offline training stage
 - **Input**: 
     - behaviour policy list: List[$`\pi_{\beta\_i}`$] = [random, pre-trained, greedy-epsilon policies]
-    - empty memory_relay $D_{off}$ with capacity $C$ and contains $N$ buckets
-
+    - empty memory_relay $D_{off}$:
+        - capacity $C$
+        - $N$ buckets
+        - Two binary trees for min and sum priority
 1. action $\leftarrow$ behaviour policy
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
 3. Store new_transition in offline memory_relay $D_{off}$
 4. **If** $D_{off}$ is full:
 5. &ensp; &ensp; Training Double deep Q network $Q_{net}$
-
 ##### Deploy stage: Inference + online training
 - **Input**:
     - trained DDQN network $Q_{net}$, 
     - filled offline memory_relay $D_{off}$
-    - empty memory_relay $D_{onl}$ with specification like $D_{off}$
-
+    - empty memory_relay $D_{onl}$ with specifications like $D_{off}$
 1. action $\leftarrow Q_{net}\leftarrow$ state $\leftarrow$ env.reset()
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
 3. Store new_transition $D_{onl}[buck_{j,j\in N}]$
-4. **If** $buck_{j}$ waitl is full **then**:
+4. **If** $buck_{j}$ is full **then**:
 5. &ensp; &ensp; **TD** errors $\leftarrow$ inference $\leftarrow buck_{j}$ data
 6. &ensp; &ensp; Set corresponding priorities (via **TD** errors)
 7. &ensp; &ensp; **for** $j=1$ to $N$ **do**
@@ -82,10 +81,14 @@ represents vehicle positions return from the environment.
 8. &ensp; &ensp; &ensp; &ensp; Calculate [MMD](https://pytorch.org/ignite/generated/ignite.metrics.MaximumMeanDiscrepancy.html)$(buck_{j}, D_{off}[buck_{j}])$
 9. &ensp; &ensp; **end for**
 10. &ensp; &ensp; $MMD(buck_{j}, D_{off})\leftarrow {1/N}\sum_{j=1}^N MMD(buck_{j}, D_{off}[buck_{j}])$
-11. **If** $j\geq2$ **and** $MMD(buck_{j}, D_{off}) > MMD(buck_{j-1}, D_{off})*ratio$ **then**: # Trigger training $Q_{net}$
-12. &ensp; &ensp; Sampling data from $D_{onl}[buck_{0:j}]$ + $D_{off}$ with priorities
-13. **else**:
-14. &ensp; &ensp; back to **step 1)**.
+11. &ensp; &ensp; **If** $j\geq2$ **and** $MMD(buck_{j}, D_{off}) > MMD(buck_{j-1}, D_{off})*ratio$ **then**: # Trigger training $Q_{net}$
+12. &ensp; &ensp; &ensp; &ensp; Sampling data from $D_{onl}[buck_{0:j}]$ + $D_{off}$ with priorities
+13. &ensp; &ensp;  **else**:
+14. &ensp; &ensp; &ensp; &ensp; back to **step 1)**.
+
+
+
+
 
 
 
