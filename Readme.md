@@ -55,15 +55,15 @@ represents vehicle positions return from the environment.
 #### Offline training stage
 - **Input**: 
     - behaviour policy list: List[$`\pi_{\beta\_i}`$] = [random, pre-trained, greedy-epsilon policies]
-    - memory_relay $D_{off}$:
+    - memory_relay $\mathcal{D}_{off}$:
         - $\emptyset$
         - capacity $C$
         - $N$ buckets
         - Two binary trees for min and sum priority
 1. action $\leftarrow$ behaviour policy
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
-3. Store new_transition in offline memory_relay $D_{off}$
-4. **if** $D_{off}$ is full **then**:
+3. Store new_transition in offline memory_relay $mathcal{D}_{off}$
+4. **if** $mathcal{D}_{off}$ is full **then**:
 5. &ensp; &ensp; Training Double deep Q network $Q_{net}$
 #### Deploy stage: Inference + online training
 - **Input**:
@@ -78,7 +78,7 @@ represents vehicle positions return from the environment.
 6. &ensp; &ensp; Set corresponding priorities (via **TD** errors)
 7. &ensp; &ensp; **for** $j=1$ to $N$ **do**
 7. &ensp; &ensp; &ensp; &ensp; Flattening _state_ and _next_ _state_ and 
-convert transitions into _d-dim_ $\overrightarrow$ s
+convert transitions into _d-dim_ $\overrightarrow{trans}$ s
 8. &ensp; &ensp; &ensp; &ensp; Calculate [MMD](https://pytorch.org/ignite/generated/ignite.metrics.MaximumMeanDiscrepancy.html)$(buck_{j}, D_{off}[buck_{j}])$
 9. &ensp; &ensp; **end for**
 10. &ensp; &ensp; $MMD(buck_{j}, D_{off})\leftarrow {1/N}\sum_{j=1}^N MMD(buck_{j}, D_{off}[buck_{j}])$
