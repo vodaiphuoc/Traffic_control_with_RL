@@ -57,7 +57,7 @@ represents vehicle positions return from the environment.
 ##### Offline training stage
 - **Input**: 
     - behaviour policy list: List[$`\pi_{\beta\_i}`$] = [random, pre-trained, greedy-epsilon policies]
-    - empty memory_relay $D_{off}$ with capacity $\textbf{C}$ and contains $N$ buckets
+    - empty memory_relay $D_{off}$ with capacity $C$ and contains $N$ buckets
 
 1. action $\leftarrow$ behaviour policy
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
@@ -82,7 +82,7 @@ represents vehicle positions return from the environment.
 8. &ensp; &ensp; &ensp; &ensp; Calculate [MMD](https://pytorch.org/ignite/generated/ignite.metrics.MaximumMeanDiscrepancy.html)$(buck_{j}, D_{off}[buck_{j}])$
 9. &ensp; &ensp; **end for**
 10. &ensp; &ensp; $MMD(buck_{j}, D_{off})\leftarrow {1/N}\sum_{j=1}^N MMD(buck_{j}, D_{off}[buck_{j}])$
-11. **If** $j>= 2$ **and** $MMD(buck_{j}, D_{off}) > MMD(buck_{j-1}, D_{off})*ratio$ **then**: # Trigger training $Q_{net}$
+11. **If** $j\geq2$ **and** $MMD(buck_{j}, D_{off}) > MMD(buck_{j-1}, D_{off})*ratio$ **then**: # Trigger training $Q_{net}$
 12. &ensp; &ensp; Sampling data from $D_{onl}[buck_{0:j}]$ + $D_{off}$ with priorities
 13. **else**:
 14. &ensp; &ensp; back to **step 1)**.
