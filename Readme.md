@@ -54,18 +54,30 @@ represents vehicle positions return from the environment.
 
 #### New workflow
 
-1. action $`\leftarrow`$ greedy-epsilon policy
-2. state, action, next_state, reward = env.step(action)
-3. memory_buffer.add2waitlist(new_transition)
-4. if waitlist is full:
-5. &ensp; &ensp; **TD** errors $`\leftarrow`$ inference $`\leftarrow`$ memory.waitlist
-6. &ensp; &ensp; memory_buffer.add(batch_transitions):
-7. &ensp; &ensp; &ensp; &ensp; add batch_transitions to list
-8. &ensp; &ensp; &ensp; &ensp; update corresponding priorities
+###### Offline training stage
+- Initialization: 
+&ensp; &ensp; - behaviour policy list :List[$\pi_{\beta\_i}$] = [random, pre-trained, greedy-epsilon policies]
+&ensp; &ensp; - empty memory_relay $D_{off}$ with capacity $C$ and contains $N$ buckets
+1. action $\leftarrow$ behaviour policy
+2. state, action, next_state, reward $\leftarrow$ env.step(action)
+3. Store new_transition in offline memory_relay $D_{off}$
+4. If $D_{off}$ is full:
+5. &ensp; &ensp; Training Double deep Q network $Q_{net}$
 
 
+###### Deploy stage: Inference + online training
+- Initialization: 
+&ensp; &ensp; - trained DDQN network $Q_{net}$, 
+&ensp; &ensp; - filled offline memory_relay $D_{off}$
+&ensp; &ensp; - empty memory_relay $D_{onl}$ with specification like $D_{off}$
 
-
+1. action $\leftarrow Q_{net}\leftarrow$ state $\leftarrow$ env.reset()
+2. state, action, next_state, reward $\leftarrow$ env.step(action)
+3. Store new_transition $D_{onl}[buck_{j,j\belong N}]$
+4. if $buck_{j}$ waitl is full:
+5. &ensp; &ensp; **TD** errors $\leftarrow$ inference $\leftarrow buck_{j}$ data
+6. &ensp; &ensp; Update corresponding priorities (via **TD** errors)
+7. &ensp; &ensp; $MMD(buck_{j}, D_{off})\leftarrow {1/N}\sum_{j=1}^N MMD(buck_{j}, D_{off}[buck_{j}])$
 
 
 

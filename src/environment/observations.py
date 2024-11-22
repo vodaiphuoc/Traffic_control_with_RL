@@ -50,6 +50,21 @@ class DefaultObservationFunction(ObservationFunction):
                 'queue': DefaultObservationFunction.toArray(queue),
                 }
 
+    def __call__(self) -> Dict[str,np.ndarray]:
+        """Queue length, number of vehicles, total waiting time, phase"""
+        phase_id = [1 if self.ts.green_phase == i else 0 for i in range(self.ts.num_green_phases)]  # one-hot encoding
+        min_green = [0 if self.ts.time_since_last_phase_change < self.ts.min_green + self.ts.yellow_time else 1]
+        density = self.ts.get_lanes_density()
+        queue = self.ts.get_lanes_queue()
+        # observation = np.array(phase_id + min_green + density + queue, dtype=np.float32)
+        return {
+                'phase_id': DefaultObservationFunction.toArray(phase_id),
+                'min_green':DefaultObservationFunction.toArray(min_green),
+                'density': DefaultObservationFunction.toArray(density),
+                'queue': DefaultObservationFunction.toArray(queue),
+                }
+
+
     def observation_space(self) -> spaces.Box:
         """Return the observation space."""
         return spaces.Box(
