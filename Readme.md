@@ -53,21 +53,16 @@ represents vehicle positions return from the environment.
 ```
 
 #### New workflow
-
-```
-
-```
-
-1) &nbsp; action $`\leftarrow`$ greedy-epsilon policy
-2) &nbsp; state, action, next_state, reward = env.step(action)
-3) &nbsp; memory_buffer.add2waitlist(new_transition)
-4) &nbsp; if infence_condition:
-5) &nbsp; &nbsp; **TD** errors $`\leftarrow`$ inference $`\leftarrow`$ memory.waitlist
-6) &nbsp; &nbsp; memory_buffer.add(batch_transitions):
-7) &nbsp; &nbsp; &nbsp; add batch_transitions to list
-8) &nbsp; &nbsp; &nbsp; update corresponding priorities
-
-
+<pre>
+1. action $`\leftarrow`$ greedy-epsilon policy
+2. state, action, next_state, reward = env.step(action)
+3. memory_buffer.add2waitlist(new_transition)
+4. if infence_condition:
+5.      **TD** errors $`\leftarrow`$ inference $`\leftarrow`$ memory.waitlist
+6.          memory_buffer.add(batch_transitions):
+7.              add batch_transitions to list
+8.              update corresponding priorities
+</pre>
 
 
 
