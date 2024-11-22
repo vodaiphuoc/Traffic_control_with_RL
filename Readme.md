@@ -55,15 +55,15 @@ represents vehicle positions return from the environment.
 #### Offline training stage
 - **Input**: 
     - behaviour policy list: List[$`\pi_{\beta\_i}`$] = [random, pre-trained, greedy-epsilon policies]
-    - memory_relay $\mathcal{D}_{off}$:
+    - memory_relay $D_{off}$:
         - $\emptyset$
         - capacity $C$
         - $N$ buckets
         - Two binary trees for min and sum priority
 1. action $\leftarrow$ behaviour policy
 2. state, action, next_state, reward $\leftarrow$ env.step(action)
-3. Store new_transition in offline memory_relay $mathcal{D}_{off}$
-4. **if** $mathcal{D}_{off}$ is full **then**:
+3. Store new_transition in offline memory_relay $D_{off}$
+4. **if** $D_{off}$ is full **then**:
 5. &ensp; &ensp; Training Double deep Q network $Q_{net}$
 #### Deploy stage: Inference + online training
 - **Input**:
