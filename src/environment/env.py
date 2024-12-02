@@ -403,7 +403,7 @@ class SumoEnvironment(gym.Env):
                 if self.traffic_signals[ts].time_to_act or self.fixed_ts
             }
         )
-        return {ts: self.rewards[ts] 
+        return {ts: self.rewards[ts]
                 for ts in self.rewards.keys() 
                 if self.traffic_signals[ts].time_to_act or self.fixed_ts}
 
