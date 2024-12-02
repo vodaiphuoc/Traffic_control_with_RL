@@ -21,7 +21,7 @@ def memory_summary():
 	tr.print_diff()
 
 
-capacity = 10**1//5
+capacity = 10**6
 memory = Bucket(bucket_size = capacity, device = torch.device('cpu'))
 
 memory_summary()
@@ -53,3 +53,5 @@ print("Garbage collector: collected",
           "%d objects." % collected)
 
 memory_summary()
+
+print(memory)
